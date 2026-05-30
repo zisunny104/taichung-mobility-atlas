@@ -937,6 +937,66 @@ footer .tag.black { background: var(--black); color: var(--white); border-color:
   }
   footer .tag { font-size: 8.5px; padding: 3px 8px; }
 }
+
+/* ── By-District card extensions ── */
+.district-controls {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.district-controls .pill {
+  font-family: var(--font-en);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border: 1px solid var(--grey-3);
+  cursor: pointer;
+  background: var(--white);
+  font-weight: 500;
+  user-select: none;
+}
+.district-controls .pill.active {
+  background: var(--lime);
+  border-color: var(--lime);
+  font-weight: 700;
+  color: var(--black);
+}
+.district-list {
+  max-height: 460px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.district-list::-webkit-scrollbar { width: 6px; }
+.district-list::-webkit-scrollbar-thumb { background: var(--grey-3); border-radius: 3px; }
+.district-row {
+  display: grid;
+  grid-template-columns: 64px 1fr 60px 62px;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 11px;
+  border-top: 1px solid var(--grey-4);
+}
+.district-row:first-child { border-top: none; }
+.district-row .d-name { color: var(--grey-1); font-weight: 400; }
+.district-row .d-track { height: 8px; background: var(--grey-4); position: relative; overflow: hidden; }
+.district-row .d-fill { height: 100%; background: var(--black); transition: width .25s; }
+.district-row.top1 .d-fill { background: var(--red); }
+.district-row.top2 .d-fill,
+.district-row.top3 .d-fill { background: var(--gold); }
+.district-row .d-abs {
+  font-family: var(--font-en); font-weight: 600; font-size: 11px;
+  color: var(--black); text-align: right;
+}
+.district-row .d-rate {
+  font-family: var(--font-en); font-size: 11px; color: var(--grey-1);
+  text-align: right;
+}
+.district-row .d-rate small {
+  font-size: 8px; letter-spacing: 0.18em; color: var(--grey-3);
+  display: block; margin-top: -2px;
+}
 </style>
 </head>
 <body>
@@ -1169,8 +1229,15 @@ footer .tag.black { background: var(--black); color: var(--white); border-color:
 
     <div class="card">
       <h4>By District</h4>
-      <div class="card-zh">各行政區死亡人數（累計）</div>
-      <div id="byDistrict"></div>
+      <div class="card-zh">各行政區死亡人數（全部，可滾動）</div>
+      <div class="district-controls">
+        <span class="pill active" data-sort="abs">累計 Total</span>
+        <span class="pill" data-sort="rate">每萬人 Per 10k</span>
+      </div>
+      <div id="byDistrict" class="district-list"></div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--grey-3);font-family:var(--font-en);font-size:9px;letter-spacing:0.12em;color:var(--grey-2);line-height:1.7">
+        Rate · per 10,000 residents (2013 population, MOI dataset 8410)
+      </div>
     </div>
 
     <div class="card">
@@ -1258,6 +1325,7 @@ footer .tag.black { background: var(--black); color: var(--white); border-color:
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 <script src="taichung_a1.js"></script>
+<script src="district_pop.js"></script>
 <script>
 (() => {
   const DATA = window.TAITUNG_A1 || [];
@@ -1796,6 +1864,49 @@ const markerLayer = L.layerGroup().addTo(map);
   // ====================================================================
   //  BREAKDOWNS  (cumulative — react to filter)
   // ====================================================================
+  // ──────────────────────────────────────────────────────────────────
+  //  BY DISTRICT — all districts, scrollable, with per-capita toggle
+  // ──────────────────────────────────────────────────────────────────
+  const POP = window.DISTRICT_POP || {};
+  const POP_YEAR = window.POPULATION_YEAR || '—';
+  let districtSort = 'abs';  // 'abs' | 'rate'
+
+  function renderDistrict(arr) {
+    const totals = {};
+    arr.forEach(e => { totals[e.district] = (totals[e.district] || 0) + (e.deaths || 0); });
+    // Include known-population districts even if zero deaths, so the list is complete
+    Object.keys(POP).forEach(d => { if (!(d in totals)) totals[d] = 0; });
+    const rows = Object.entries(totals).map(([d, deaths]) => {
+      const pop = POP[d] || null;
+      const rate = pop ? (deaths / pop * 10000) : null;
+      return { name: d, deaths, pop, rate };
+    });
+    rows.sort((a, b) => {
+      if (districtSort === 'rate') {
+        const ar = a.rate ?? -1, br = b.rate ?? -1;
+        return (br - ar) || (b.deaths - a.deaths);
+      }
+      return (b.deaths - a.deaths) || ((b.rate ?? -1) - (a.rate ?? -1));
+    });
+    const maxAbs  = Math.max(1, ...rows.map(r => r.deaths));
+    const maxRate = Math.max(0.01, ...rows.map(r => r.rate ?? 0));
+    const el = document.getElementById('byDistrict');
+    el.innerHTML = rows.map((r, i) => {
+      const rankCls = i === 0 ? 'top1' : (i === 1 ? 'top2' : (i === 2 ? 'top3' : ''));
+      const fillPct = districtSort === 'rate'
+        ? ((r.rate ?? 0) / maxRate * 100)
+        : (r.deaths / maxAbs * 100);
+      const rateTxt = r.rate != null ? r.rate.toFixed(1) : '—';
+      const popTxt  = r.pop  != null ? (r.pop >= 10000 ? (r.pop/10000).toFixed(1)+'萬' : String(r.pop)) : '—';
+      return `<div class="district-row ${rankCls}">
+        <div class="d-name">${r.name}</div>
+        <div class="d-track"><div class="d-fill" style="width:${fillPct.toFixed(1)}%"></div></div>
+        <div class="d-abs">${r.deaths}<small style="font-family:var(--font-en);font-size:8px;color:var(--grey-2);letter-spacing:0.1em;display:block">DEATHS</small></div>
+        <div class="d-rate">${rateTxt}<small>/萬 · ${popTxt}</small></div>
+      </div>`;
+    }).join('');
+  }
+
   function tally(arr, keyFn) {
     const m = new Map();
     arr.forEach(e => {
@@ -1850,7 +1961,7 @@ const markerLayer = L.layerGroup().addTo(map);
   }
   function renderBreakdowns() {
     const arr = filteredAll();
-    renderBars('byDistrict', tally(arr, e => e.district), { cls: () => 'alt' });
+    renderDistrict(arr);
     const modeColorClass = (k) => ({ '機車':'alt','汽車':'blue','人':'red','慢車':'gold','其他':'grey' }[k] || '');
     renderBars('byMode', tally(arr, e => e.mode), { cls: modeColorClass });
     renderBars('byRoad', tally(arr, e => e.road_type || null));
@@ -1919,6 +2030,14 @@ const markerLayer = L.layerGroup().addTo(map);
       document.querySelectorAll('[data-base]').forEach(x => x.classList.remove('active'));
       el.classList.add('active');
       setBase(el.dataset.base);
+    });
+  });
+  document.querySelectorAll('[data-sort]').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('[data-sort]').forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
+      districtSort = el.dataset.sort;
+      renderDistrict(filteredAll());
     });
   });
   document.querySelectorAll('[data-hwy]').forEach(el => {
