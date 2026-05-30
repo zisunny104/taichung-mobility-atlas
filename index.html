@@ -1,0 +1,1968 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台中市交通安全地圖 · Taichung Traffic Safety Map · 2016–2025</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100;300;400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --lime:   #C8D400;
+  --lime-dk:#A8B200;
+  --lime-lt:#E8F000;
+  --black:  #1A1A1A;
+  --grey-1: #4A4A4A;
+  --grey-2: #888888;
+  --grey-3: #D0D0D0;
+  --grey-4: #F2F2F2;
+  --white:  #FFFFFF;
+  --red:    #D94F3D;
+  --blue:   #3A7CC3;
+  --gold:   #E8A825;
+  --green-d:#4CAF50;
+  --font-zh: 'Noto Sans TC', sans-serif;
+  --font-en: 'Space Grotesk', sans-serif;
+}
+
+body {
+  font-family: var(--font-zh);
+  background: var(--grey-4);
+  color: var(--black);
+  line-height: 1.6;
+}
+
+.shell {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 48px 40px 80px;
+}
+
+/* ── Page header ── */
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  margin-bottom: 56px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid var(--black);
+}
+.page-header .logo-mark {
+  font-family: var(--font-en);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  border: 1.5px solid var(--black);
+  padding: 5px 10px;
+  text-transform: uppercase;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.page-header .title-block { flex: 1; }
+.page-header h1 {
+  font-family: var(--font-en);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--grey-2);
+  line-height: 1.6;
+}
+.page-header .title-zh {
+  font-family: var(--font-zh);
+  font-weight: 300;
+  font-size: 24px;
+  letter-spacing: 0.06em;
+  color: var(--black);
+  margin-top: 4px;
+}
+.page-header .meta {
+  font-family: var(--font-en);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--grey-2);
+  text-align: right;
+  line-height: 1.6;
+}
+.page-header .meta strong { color: var(--black); font-weight: 600; }
+
+/* ── Section titles ── */
+.section { margin-bottom: 56px; }
+.section-label {
+  font-family: var(--font-en);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--grey-2);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--grey-3);
+}
+
+/* ── Overview cover ── */
+.cover {
+  background: var(--white);
+  padding: 40px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 40px;
+  position: relative;
+  overflow: hidden;
+}
+.cover .big-num {
+  font-family: var(--font-en);
+  font-size: 140px;
+  font-weight: 300;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  color: var(--black);
+}
+.cover .big-num sup {
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--grey-2);
+  vertical-align: top;
+  margin-left: 12px;
+}
+.cover .big-label-zh {
+  font-family: var(--font-zh);
+  font-weight: 100;
+  font-size: 22px;
+  letter-spacing: 0.1em;
+  margin-top: 16px;
+}
+.cover .big-label-en {
+  font-family: var(--font-en);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--grey-2);
+  margin-top: 6px;
+}
+.cover .span-meta {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--grey-1);
+  letter-spacing: 0.04em;
+}
+.cover .donut {
+  position: absolute;
+  right: -60px;
+  top: -40px;
+  width: 320px;
+  height: 320px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.kpis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-content: end;
+  position: relative;
+  z-index: 1;
+}
+.kpi {
+  border-top: 1px solid var(--grey-3);
+  padding-top: 14px;
+}
+.kpi .kpi-label {
+  font-family: var(--font-en);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--grey-2);
+  margin-bottom: 4px;
+}
+.kpi .kpi-zh {
+  font-size: 11px;
+  color: var(--grey-1);
+  font-weight: 300;
+  margin-bottom: 6px;
+}
+.kpi .kpi-num {
+  font-family: var(--font-en);
+  font-size: 42px;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--black);
+}
+.kpi .kpi-num small {
+  font-size: 14px;
+  color: var(--grey-2);
+  letter-spacing: 0.05em;
+  margin-left: 4px;
+}
+
+/* ── Trend section ── */
+.trend-card {
+  background: var(--white);
+  padding: 32px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.trend-card h4 {
+  font-family: var(--font-en);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--grey-2);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.trend-card .card-zh {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--black);
+  margin-bottom: 22px;
+  letter-spacing: 0.05em;
+}
+.trend-svg-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -4px;
+}
+.trend-svg {
+  width: 100%;
+  min-width: 560px;
+  height: 280px;
+  display: block;
+}
+.trend-legend {
+  display: flex;
+  gap: 24px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.trend-legend .item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--grey-1);
+}
+.trend-legend .item .swatch {
+  width: 18px;
+  height: 3px;
+}
+.trend-legend .item.dashed .swatch {
+  background: repeating-linear-gradient(90deg, var(--black) 0 4px, transparent 4px 7px);
+}
+
+.trend-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+/* Per-year mode stacked bars */
+.year-stacks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.year-stack {
+  display: grid;
+  grid-template-columns: 50px 1fr 56px;
+  gap: 12px;
+  align-items: center;
+  font-size: 11px;
+}
+.year-stack .yr {
+  font-family: var(--font-en);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--grey-1);
+  letter-spacing: 0.04em;
+}
+.year-stack .stack {
+  display: flex;
+  height: 14px;
+  background: var(--grey-4);
+  overflow: hidden;
+}
+.year-stack .seg {
+  height: 100%;
+}
+.year-stack .total {
+  font-family: var(--font-en);
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--black);
+  text-align: right;
+}
+
+/* District heatmap */
+.heatmap-wrap {
+  overflow-x: auto;
+}
+.heatmap {
+  display: grid;
+  grid-template-columns: 88px repeat(10, minmax(36px, 1fr));
+  gap: 2px;
+  font-family: var(--font-en);
+  font-size: 10px;
+  min-width: 520px;
+}
+.heatmap .corner { color: var(--grey-2); font-size: 9px; letter-spacing: 0.15em; padding: 4px; }
+.heatmap .col-head {
+  text-align: center;
+  font-size: 9px;
+  color: var(--grey-2);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 4px 0;
+}
+.heatmap .row-label {
+  font-family: var(--font-zh);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--grey-1);
+  padding: 4px 8px 4px 0;
+  text-align: right;
+  align-self: center;
+}
+.heatmap .cell {
+  background: var(--grey-4);
+  text-align: center;
+  padding: 6px 0;
+  font-weight: 500;
+  color: var(--black);
+  font-family: var(--font-en);
+  font-size: 11px;
+}
+.heatmap .cell.zero { color: var(--grey-3); }
+
+/* ── Filter bar ── */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 24px;
+  align-items: center;
+  padding: 18px 24px;
+  background: var(--white);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  margin-bottom: 24px;
+}
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.filter-group-label {
+  font-family: var(--font-en);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--grey-2);
+  font-weight: 600;
+}
+.cat-pill {
+  font-size: 11px;
+  font-weight: 400;
+  padding: 5px 11px;
+  border: 1px solid var(--grey-3);
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  background: var(--white);
+  font-family: var(--font-zh);
+  user-select: none;
+  transition: background .12s, border-color .12s;
+}
+.cat-pill.en { font-family: var(--font-en); letter-spacing: 0.05em; font-weight: 500; }
+.cat-pill:hover { border-color: var(--black); }
+.cat-pill.active {
+  background: var(--lime);
+  border-color: var(--lime);
+  font-weight: 700;
+}
+.cat-pill.disabled {
+  color: var(--grey-3);
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+.cat-pill.disabled:hover { border-color: var(--grey-3); }
+
+/* ── Map + side panel ── */
+.map-grid {
+  display: grid;
+  grid-template-columns: 1.55fr 1fr;
+  gap: 24px;
+}
+.map-wrap {
+  background: var(--white);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  padding: 16px;
+}
+#map {
+  height: 620px;
+  background: var(--grey-4);
+  border: 1px solid var(--grey-3);
+}
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  padding: 12px 4px 4px;
+  align-items: center;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--grey-1);
+  font-weight: 300;
+}
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--black);
+  flex-shrink: 0;
+}
+.legend-note {
+  margin-left: auto;
+  font-family: var(--font-en);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--grey-2);
+}
+
+.side-panel {
+  background: var(--white);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  overflow: hidden;
+}
+.side-panel h3 {
+  font-family: var(--font-en);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--grey-2);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.detail-empty {
+  font-size: 13px;
+  color: var(--grey-2);
+  font-weight: 300;
+  line-height: 1.8;
+  padding: 24px 0;
+  text-align: center;
+  border-top: 1px dashed var(--grey-3);
+  border-bottom: 1px dashed var(--grey-3);
+}
+.detail-empty .en {
+  font-family: var(--font-en);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--grey-3);
+  margin-top: 8px;
+  display: block;
+}
+
+.detail-card .detail-date {
+  font-family: var(--font-en);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--lime-dk);
+  margin-bottom: 6px;
+}
+.detail-card .detail-loc {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--black);
+  margin-bottom: 12px;
+}
+.detail-card .detail-row {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  font-size: 11px;
+  padding: 7px 0;
+  border-top: 1px solid var(--grey-3);
+  align-items: baseline;
+}
+.detail-card .detail-row:last-of-type { border-bottom: 1px solid var(--grey-3); }
+.detail-card .dlabel {
+  font-family: var(--font-en);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--grey-2);
+  font-weight: 600;
+}
+.detail-card .dval {
+  font-weight: 300;
+  color: var(--grey-1);
+  line-height: 1.55;
+}
+.detail-card .dval strong {
+  color: var(--black);
+  font-weight: 500;
+}
+.parties-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 14px;
+}
+.party-row {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 11px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--grey-3);
+}
+.party-row:last-child { border-bottom: none; }
+.party-row .pno {
+  font-family: var(--font-en);
+  font-size: 10px;
+  color: var(--grey-2);
+  font-weight: 600;
+}
+.party-row .pname { font-weight: 400; color: var(--black); }
+.party-row .pmeta {
+  color: var(--grey-2);
+  font-weight: 300;
+  font-size: 10px;
+  font-family: var(--font-en);
+}
+.party-row.role-victim .pname { color: var(--red); font-weight: 500; }
+
+/* ── Insight callout ── */
+.insight {
+  background: var(--black);
+  color: var(--white);
+  padding: 32px;
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 32px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  align-items: center;
+}
+.insight .ipct {
+  font-family: var(--font-en);
+  font-size: 96px;
+  font-weight: 300;
+  line-height: 0.9;
+  color: var(--lime);
+}
+.insight .ipct small {
+  font-size: 24px;
+  letter-spacing: 0.05em;
+  margin-left: 4px;
+  color: var(--lime);
+}
+.insight .ilabel-en {
+  font-family: var(--font-en);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 12px;
+}
+.insight .itext {
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.9;
+  letter-spacing: 0.04em;
+}
+.insight .itext strong {
+  font-weight: 500;
+  border-bottom: 1px solid var(--lime);
+  padding-bottom: 1px;
+}
+.insight .iref {
+  font-family: var(--font-en);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--grey-2);
+  margin-top: 14px;
+}
+
+/* ── Breakdown grid ── */
+.breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+.card {
+  background: var(--white);
+  padding: 28px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.card h4 {
+  font-family: var(--font-en);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--grey-2);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.card .card-zh {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--black);
+  margin-bottom: 20px;
+  letter-spacing: 0.05em;
+}
+.bar-row {
+  display: grid;
+  grid-template-columns: 84px 1fr 60px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 9px;
+  font-size: 11px;
+}
+.bar-row .bar-label {
+  color: var(--grey-1);
+  font-weight: 400;
+  font-size: 11px;
+  line-height: 1.3;
+}
+.bar-row .bar-track {
+  height: 10px;
+  background: var(--grey-4);
+  position: relative;
+  overflow: hidden;
+}
+.bar-row .bar-fill {
+  height: 100%;
+  background: var(--lime);
+  transition: width .3s;
+}
+.bar-row.alt .bar-fill { background: var(--black); }
+.bar-row.red .bar-fill { background: var(--red); }
+.bar-row.blue .bar-fill { background: var(--blue); }
+.bar-row.gold .bar-fill { background: var(--gold); }
+.bar-row.grey .bar-fill { background: var(--grey-2); }
+.bar-row .bar-val {
+  font-family: var(--font-en);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--black);
+  text-align: right;
+}
+.bar-row .bar-val small {
+  color: var(--grey-2);
+  font-weight: 400;
+  margin-left: 4px;
+}
+.hour-grid {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  gap: 2px;
+  align-items: end;
+  height: 140px;
+}
+.hour-cell { position: relative; background: var(--grey-4); display: flex; align-items: flex-end; height: 100%; }
+.hour-bar { width: 100%; background: var(--lime); min-height: 1px; }
+.hour-axis { display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; margin-top: 4px; }
+.hour-axis span { font-family: var(--font-en); font-size: 8px; color: var(--grey-2); text-align: center; }
+.month-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; align-items: end; height: 140px; }
+.month-cell { background: var(--grey-4); display: flex; align-items: flex-end; height: 100%; }
+.month-bar { width: 100%; background: var(--black); min-height: 1px; }
+.month-axis { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; margin-top: 4px; }
+.month-axis span { font-family: var(--font-en); font-size: 9px; color: var(--grey-2); text-align: center; }
+
+/* Footer */
+footer {
+  border-top: 2px solid var(--black);
+  padding-top: 20px;
+  margin-top: 64px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-en);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--grey-2);
+  text-transform: uppercase;
+}
+footer .tags { display: flex; gap: 6px; }
+footer .tag { padding: 3px 10px; font-weight: 600; background: var(--white); border: 1px solid var(--grey-3); }
+footer .tag.lime { background: var(--lime); border-color: var(--lime); color: var(--black); }
+footer .tag.black { background: var(--black); color: var(--white); border-color: var(--black); }
+
+/* ── Hotspot card & list ── */
+.hotspot-card {
+  background: var(--white);
+  padding: 28px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.hotspot-row {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 8px 12px 0;
+  border-bottom: 1px solid var(--grey-3);
+  cursor: pointer;
+  transition: background .12s;
+}
+.hotspot-row:hover { background: var(--grey-4); }
+.hotspot-row:last-child { border-bottom: none; }
+.hotspot-row .rank {
+  font-family: var(--font-en);
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--grey-2);
+  text-align: right;
+  line-height: 1;
+}
+.hotspot-row.top1 .rank { color: var(--red); font-weight: 500; }
+.hotspot-row.top2 .rank,
+.hotspot-row.top3 .rank { color: var(--gold); }
+.hotspot-row .info { min-width: 0; }
+.hotspot-row .loc {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--black);
+  line-height: 1.45;
+  margin-bottom: 4px;
+}
+.hotspot-row .meta {
+  font-family: var(--font-en);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--grey-2);
+}
+.hotspot-row .meta .sep { color: var(--grey-3); margin: 0 6px; }
+.hotspot-row .deaths {
+  font-family: var(--font-en);
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--black);
+  text-align: right;
+  line-height: 1;
+}
+.hotspot-row .deaths small {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--grey-2);
+  font-weight: 500;
+  text-transform: uppercase;
+  display: block;
+  margin-top: 4px;
+}
+
+/* Heat layer canvas — let it sit below labels but above tiles */
+.leaflet-heatmap-layer { mix-blend-mode: multiply; }
+
+/* Leaflet marker overrides */
+.lf-marker {
+  border-radius: 50%;
+  border: 1.5px solid var(--black);
+  box-shadow: 0 1px 2px rgba(0,0,0,.2);
+  transition: transform .12s;
+}
+.lf-marker.selected {
+  transform: scale(1.6);
+  border-width: 2.5px;
+  z-index: 1000;
+}
+.leaflet-tooltip.taitung-tt {
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  border-radius: 0;
+  padding: 6px 10px;
+  font-family: var(--font-zh);
+  font-size: 11px;
+  font-weight: 300;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.leaflet-tooltip.taitung-tt::before { display: none; }
+.leaflet-control-attribution {
+  font-size: 9px !important;
+  font-family: var(--font-en) !important;
+  background: rgba(255,255,255,0.85) !important;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .map-grid, .cover, .insight, .trend-grid { grid-template-columns: 1fr; }
+  #map { height: 480px; }
+  .cover .donut { width: 260px; height: 260px; opacity: 0.35; }
+}
+
+/* Tablet & large mobile */
+@media (max-width: 768px) {
+  .shell { padding: 32px 20px 56px; }
+  .section { margin-bottom: 40px; }
+  .section-label { margin-bottom: 18px; font-size: 9px; letter-spacing: 0.22em; }
+
+  .page-header { flex-wrap: wrap; gap: 14px; margin-bottom: 36px; padding-bottom: 18px; }
+  .page-header .title-block { flex: 1 1 100%; order: 2; }
+  .page-header .logo-mark { order: 1; }
+  .page-header .meta { order: 3; text-align: left; width: 100%; }
+  .page-header .title-zh { font-size: 20px; }
+
+  .cover { padding: 28px; gap: 28px; }
+  .cover .big-num { font-size: 92px; }
+  .cover .donut { width: 200px; height: 200px; right: -50px; top: -30px; opacity: 0.25; }
+  .cover .big-label-zh { font-size: 18px; margin-top: 12px; }
+  .kpi .kpi-num { font-size: 34px; }
+
+  .insight { padding: 24px; gap: 18px; }
+  .insight .ipct { font-size: 72px; }
+  .insight .ipct small { font-size: 18px; }
+  .insight .itext { font-size: 13px; line-height: 1.8; }
+
+  #map { height: 420px; }
+  .map-wrap { padding: 12px; }
+  .side-panel { padding: 22px 20px; }
+
+  .filter-bar { padding: 14px 16px; gap: 12px 16px; }
+  .filter-group { gap: 6px; }
+  .filter-group-label { font-size: 8px; letter-spacing: 0.2em; }
+  .cat-pill { padding: 6px 11px; font-size: 11px; }
+  .cat-pill.en { font-size: 10.5px; }
+
+  .breakdown-grid { grid-template-columns: 1fr; gap: 20px; }
+  .card, .trend-card { padding: 24px 20px; }
+  .card .card-zh, .trend-card .card-zh { font-size: 12.5px; margin-bottom: 18px; }
+  .bar-row { grid-template-columns: 80px 1fr 56px; gap: 10px; }
+
+  .year-stack { grid-template-columns: 44px 1fr 48px; gap: 10px; }
+  .year-stack .yr { font-size: 10.5px; }
+
+  .heatmap-wrap::after {
+    content: 'swipe →';
+    display: block;
+    font-family: var(--font-en);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--grey-3);
+    text-align: right;
+    margin-top: 6px;
+  }
+}
+
+/* Small mobile (iPhone SE etc.) */
+@media (max-width: 480px) {
+  body { line-height: 1.55; }
+  .shell { padding: 22px 14px 48px; }
+  .section { margin-bottom: 32px; }
+
+  .page-header { margin-bottom: 28px; }
+  .page-header .logo-mark { font-size: 8px; padding: 4px 7px; letter-spacing: 0.16em; }
+  .page-header h1 { font-size: 10px; letter-spacing: 0.18em; }
+  .page-header .title-zh { font-size: 18px; margin-top: 2px; }
+  .page-header .meta { font-size: 9px; letter-spacing: 0.18em; }
+
+  .cover { padding: 22px; gap: 20px; grid-template-columns: 1fr; }
+  .cover .big-num { font-size: 72px; }
+  .cover .big-num sup { font-size: 11px; margin-left: 6px; }
+  .cover .big-label-zh { font-size: 16px; letter-spacing: 0.08em; }
+  .cover .big-label-en { font-size: 8.5px; }
+  .cover .span-meta { font-size: 11px; }
+  .cover .donut { width: 150px; height: 150px; right: -40px; top: -20px; opacity: 0.2; }
+  .kpis { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .kpi { padding-top: 10px; }
+  .kpi .kpi-label { font-size: 8.5px; }
+  .kpi .kpi-zh { font-size: 10px; }
+  .kpi .kpi-num { font-size: 28px; }
+  .kpi .kpi-num small { font-size: 11px; }
+
+  .trend-card, .card { padding: 20px 16px; }
+  .trend-svg { min-width: 520px; height: 240px; }
+
+  .insight { padding: 20px; }
+  .insight .ipct { font-size: 56px; }
+  .insight .ipct small { font-size: 14px; }
+  .insight .itext { font-size: 12.5px; line-height: 1.75; }
+  .insight .ilabel-en { font-size: 8.5px; letter-spacing: 0.2em; margin-bottom: 8px; }
+
+  #map { height: 360px; }
+  .map-legend { gap: 12px 14px; font-size: 10px; }
+  .legend-item { font-size: 10px; gap: 6px; }
+  .legend-dot { width: 10px; height: 10px; }
+  .legend-note { display: none; }
+
+  .filter-bar { padding: 12px 14px; gap: 10px 12px; }
+  .filter-group { width: 100%; gap: 6px; }
+  .filter-group-label { width: 100%; }
+  .cat-pill { padding: 6px 10px; font-size: 10.5px; }
+
+  .bar-row { grid-template-columns: 72px 1fr 52px; gap: 8px; font-size: 10.5px; }
+  .bar-row .bar-label { font-size: 10.5px; }
+  .bar-row .bar-val { font-size: 10.5px; }
+
+  .year-stack { grid-template-columns: 38px 1fr 42px; gap: 8px; }
+
+  .heatmap { font-size: 9.5px; }
+  .heatmap .row-label { font-size: 10px; padding: 4px 6px 4px 0; }
+  .heatmap .cell { padding: 5px 0; font-size: 10px; }
+
+  .hour-grid, .month-grid { height: 110px; }
+  .hour-axis span { font-size: 7px; }
+
+  .side-panel { padding: 20px 18px; gap: 18px; }
+  .detail-card .detail-row { grid-template-columns: 72px 1fr; }
+
+  footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 8.5px;
+  }
+  footer .tag { font-size: 8.5px; padding: 3px 8px; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- Header -->
+<div class="page-header">
+  <div class="logo-mark">
+    Taichung<br>Mobility<br>Atlas
+  </div>
+  <div class="title-block">
+    <h1>Taichung Traffic Safety Map · 10-year Review 2016 — 2025</h1>
+    <div class="title-zh">台中市交通安全地圖｜十年回顧</div>
+  </div>
+  <div class="meta">
+    A1 Fatal Crash Data<br>
+    <strong>民 105 — 114 / 2016 — 2025</strong>
+  </div>
+</div>
+
+<!-- ══ 01 — Overview ══ -->
+<div class="section">
+  <div class="section-label">01 — Decade Overview 十年總覽</div>
+  <div class="cover">
+    <svg class="donut" viewBox="0 0 200 200" aria-hidden="true">
+      <circle cx="100" cy="100" r="80" fill="none" stroke="#C8D400" stroke-width="32"/>
+      <circle cx="100" cy="100" r="80" fill="none" stroke="#E8F000" stroke-width="32"
+              stroke-dasharray="220 280" opacity="0.55"/>
+    </svg>
+    <div>
+      <div class="big-num" id="bigDeaths">1,607<sup>人</sup></div>
+      <div class="big-label-zh">十年內因交通事故失去的生命</div>
+      <div class="big-label-en">Lives lost on Taichung roads · 24 h fatalities · 2016 — 2025</div>
+      <div class="span-meta">平均每年 <strong id="avgDeaths">161</strong> 人；最高為 <strong id="peakYear">2020</strong> 年 <strong id="peakDeaths">211</strong> 人</div>
+    </div>
+    <div class="kpis">
+      <div class="kpi">
+        <div class="kpi-label">Events</div>
+        <div class="kpi-zh">A1 死亡事故件數</div>
+        <div class="kpi-num" id="kEvents">1,573</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Motorcycle</div>
+        <div class="kpi-zh">機車為主要事故方</div>
+        <div class="kpi-num" id="kMoto">1,006<small>件</small></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Pedestrians</div>
+        <div class="kpi-zh">行人事故</div>
+        <div class="kpi-num" id="kPed">—<small>件</small></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Latest Year</div>
+        <div class="kpi-zh">2025 年死亡人數</div>
+        <div class="kpi-num" id="kLatest">32<small>人</small></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 02 — Year-over-Year ══ -->
+<div class="section">
+  <div class="section-label">02 — Year-over-Year 逐年趨勢</div>
+
+  <div class="trend-card" style="margin-bottom:24px">
+    <h4>Annual Trend — Events &amp; Deaths</h4>
+    <div class="card-zh">2016 – 2025 死亡事故件數與死亡人數年度變化</div>
+    <div class="trend-svg-wrap">
+      <svg class="trend-svg" id="trendSvg" viewBox="0 0 900 280" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+    <div class="trend-legend">
+      <div class="item"><span class="swatch" style="background:#C8D400;height:6px"></span>事故件數 Events</div>
+      <div class="item dashed"><span class="swatch"></span>死亡人數 Deaths</div>
+      <div class="item" style="margin-left:auto;color:var(--grey-2);font-family:var(--font-en);font-size:10px;letter-spacing:0.1em">N · National Police Agency A1 Open Dataset</div>
+    </div>
+  </div>
+
+  <div class="trend-grid">
+    <div class="trend-card">
+      <h4>Victim-Mode Composition by Year</h4>
+      <div class="card-zh">年度受害者運具組成（最弱勢用路人）</div>
+      <div class="year-stacks" id="yearStacks"></div>
+      <div class="trend-legend">
+        <div class="item"><span class="swatch" style="background:#1A1A1A;height:10px"></span>機車</div>
+        <div class="item"><span class="swatch" style="background:#3A7CC3;height:10px"></span>汽/貨車</div>
+        <div class="item"><span class="swatch" style="background:#D94F3D;height:10px"></span>行人</div>
+        <div class="item"><span class="swatch" style="background:#E8A825;height:10px"></span>慢車</div>
+        <div class="item"><span class="swatch" style="background:#888888;height:10px"></span>其他</div>
+      </div>
+    </div>
+
+    <div class="trend-card">
+      <h4>Yearly Snapshot — 2025</h4>
+      <div class="card-zh">最新年度數字（與十年平均比較）</div>
+      <div id="snapshot"></div>
+    </div>
+  </div>
+
+  <div class="trend-card" style="margin-top:24px">
+    <h4>District × Year — Deaths Heatmap</h4>
+    <div class="card-zh">十年內各行政區死亡人數熱力圖（深色＝該年死亡人數較高）</div>
+    <div class="heatmap-wrap">
+      <div class="heatmap" id="heatmap"></div>
+    </div>
+    <div style="margin-top:14px;font-family:var(--font-en);font-size:9px;letter-spacing:0.15em;color:var(--grey-2);text-transform:uppercase">
+      Scale · 顏色由淺至深表示該年死亡人數 0 → 10+
+    </div>
+  </div>
+</div>
+
+<!-- ══ 03 — Map ══ -->
+<div class="section">
+  <div class="section-label">03 — Spatial Distribution 空間分布</div>
+
+  <div class="filter-bar">
+    <div class="filter-group">
+      <span class="filter-group-label">Year</span>
+      <span class="cat-pill en active" data-year="all">All</span>
+      <span class="cat-pill en disabled" data-year="2016" title="2016 年無經緯度資料">2016</span>
+      <span class="cat-pill en disabled" data-year="2017" title="2017 年無經緯度資料">2017</span>
+      <span class="cat-pill en" data-year="2018">2018</span>
+      <span class="cat-pill en" data-year="2019">2019</span>
+      <span class="cat-pill en" data-year="2020">2020</span>
+      <span class="cat-pill en" data-year="2021">2021</span>
+      <span class="cat-pill en" data-year="2022">2022</span>
+      <span class="cat-pill en" data-year="2023">2023</span>
+      <span class="cat-pill en" data-year="2024">2024</span>
+      <span class="cat-pill en" data-year="2025">2025</span>
+    </div>
+    <div class="filter-group">
+      <span class="filter-group-label">Victim</span>
+      <span class="cat-pill active" data-mode="all">全部</span>
+      <span class="cat-pill" data-mode="機車">機車</span>
+      <span class="cat-pill" data-mode="汽車">汽/貨車</span>
+      <span class="cat-pill" data-mode="人">行人</span>
+      <span class="cat-pill" data-mode="慢車">自行車/慢車</span>
+    </div>
+    <div class="filter-group">
+      <span class="filter-group-label">View</span>
+      <span class="cat-pill active" data-view="points">點位 Points</span>
+      <span class="cat-pill" data-view="heat">熱力 Heatmap</span>
+      <span class="cat-pill" data-view="both">兩者 Both</span>
+    </div>
+        <div class="filter-group">
+      <span class="filter-group-label">Base</span>
+      <span class="cat-pill" data-base="minimal">簡潔</span>
+      <span class="cat-pill active" data-base="roads">道路</span>
+      <span class="cat-pill" data-base="satellite">衛星</span>
+    </div>
+    <div class="filter-group">
+      <span class="filter-group-label">幹線 Hwys</span>
+      <span class="cat-pill active" data-hwy="on">顯示</span>
+      <span class="cat-pill" data-hwy="off">隱藏</span>
+    </div>
+    <div class="filter-group" style="margin-left:auto">
+      <span class="filter-group-label" id="filterCount">Showing — / —</span>
+    </div>
+  </div>
+
+  <div class="map-grid">
+    <div class="map-wrap">
+      <div id="map"></div>
+      <div class="map-legend">
+        <div class="legend-item"><span class="legend-dot" style="background:#1A1A1A"></span>機車 Motorcycle</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#3A7CC3"></span>汽/貨車 Car/Truck</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#D94F3D"></span>行人 Pedestrian</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#E8A825"></span>慢車 Bicycle</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#888"></span>其他 Other</div>
+        <div class="legend-item" style="margin-left:14px;padding-left:14px;border-left:1px solid var(--grey-3)"><span style="display:inline-block;width:18px;height:3px;background:#D94F3D;margin-right:2px"></span>國道</div>
+        <div class="legend-item"><span style="display:inline-block;width:18px;height:3px;background:#E8A825;margin-right:2px"></span>快速公路</div>
+        <div class="legend-item"><span style="display:inline-block;width:18px;height:2px;background:#3A7CC3;margin-right:2px"></span>省道</div>
+        <div class="legend-note">Tap a dot →</div>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <h3>Event Detail — 事件明細</h3>
+      <div class="detail-empty" id="detailEmpty">
+        點選地圖上任一圓點以查看事故細節
+        <span class="en">Click a marker to inspect</span>
+      </div>
+      <div class="detail-card" id="detailCard" style="display:none"></div>
+    </div>
+  </div>
+  <div style="font-family:var(--font-en);font-size:9px;letter-spacing:0.15em;color:var(--grey-2);text-transform:uppercase;margin-top:12px">
+    Note · 2016 &amp; 2017 records lack coordinates and are excluded from the map; their counts remain in the trend &amp; breakdown sections.
+  </div>
+
+  <div class="hotspot-card" style="margin-top:24px">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+      <h4 style="font-family:var(--font-en);font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--grey-2);font-weight:600">Top Hotspots · 優先治理路段</h4>
+      <div style="font-family:var(--font-en);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--grey-3)">300m × 300m grid · click to zoom</div>
+    </div>
+    <div style="font-size:13px;color:var(--black);margin-bottom:18px;letter-spacing:0.05em">能解析道路名稱與里程者以「~3 公里路段」聚合（標記 ⚑ 路段）；其餘以 ~300 公尺方格聚合。依累計死亡人數排序前 10 名。點選列可在地圖上定位。</div>
+    <div id="hotspots"></div>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--grey-3);font-family:var(--font-en);font-size:9px;letter-spacing:0.12em;color:var(--grey-2);line-height:1.7">
+      Note · A1 records sometimes share identical coordinates that represent road centroids rather than precise crash points. We collapse such events into road-segment clusters (km range shown) to avoid false single-point hotspots.
+    </div>
+  </div>
+</div>
+
+<!-- ══ 04 — Insight ══ -->
+<div class="section">
+  <div class="section-label">04 — Headline Finding 關鍵發現</div>
+  <div class="insight">
+    <div>
+      <div class="ilabel-en">Motorcycle Victim Share · Decade</div>
+      <div class="ipct" id="motoPct">64<small>%</small></div>
+    </div>
+    <div>
+      <div class="ilabel-en">Key Insight · 整體觀察</div>
+      <div class="itext">
+        過去十年間，每年約有 <strong id="avgDeaths2">161</strong> 人在台中市道路上喪生。
+        以「事件中最弱勢用路人」為基準：<strong>機車</strong>受害者佔 <strong id="motoCount">1,006</strong> 件（64%）、
+        <strong>行人 281 件（18%）</strong>、慢車 99 件（6%）— 合計<strong>弱勢用路人佔 88%</strong>。
+        行人受害比例僅次於台北市，遠高於台南與宜蘭。<br>
+        死亡事故 <strong>94%</strong> 發生於市區道路；空間集中於<strong>北屯（137）、西屯（128）、大里（93）</strong>三區與環中路（市環）系統，
+        加上國道 1 號中部段（神岡 168–170k、南屯 181–182k）多處熱點。<br>
+        2018→2019 事故件數倍增（102→197 件），疑為通報補強或實際惡化，需查證；2024 起回落至 145 人。
+      </div>
+      <div class="iref">Data · National Police Agency A1 Open Dataset 2016–2025</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 05 — Breakdown ══ -->
+<div class="section">
+  <div class="section-label">05 — Breakdown 多維拆解</div>
+  <div class="breakdown-grid">
+
+    <div class="card">
+      <h4>By District</h4>
+      <div class="card-zh">各行政區死亡人數（累計）</div>
+      <div id="byDistrict"></div>
+    </div>
+
+    <div class="card">
+      <h4>By Victim Mode</h4>
+      <div class="card-zh">受害者運具類別（取事件中最弱勢用路人）</div>
+      <div id="byMode"></div>
+    </div>
+
+    <div class="card">
+      <h4>By Road Class</h4>
+      <div class="card-zh">道路類別 · 僅 2018+ 資料</div>
+      <div id="byRoad"></div>
+    </div>
+
+    <div class="card">
+      <h4>By Lighting</h4>
+      <div class="card-zh">事故發生時光線狀況 · 僅 2018+</div>
+      <div id="byLight"></div>
+    </div>
+
+    <div class="card" style="grid-column: span 2; min-width:0">
+      <h4>By Hour of Day</h4>
+      <div class="card-zh">事故發生時段（24 小時分布）</div>
+      <div class="hour-grid" id="byHour"></div>
+      <div class="hour-axis" id="byHourAxis"></div>
+    </div>
+
+    <div class="card" style="grid-column: span 2; min-width:0">
+      <h4>By Month</h4>
+      <div class="card-zh">事故發生月份</div>
+      <div class="month-grid" id="byMonth"></div>
+      <div class="month-axis" id="byMonthAxis"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ 06 — Notes ══ -->
+<div class="section">
+  <div class="section-label">06 — Notes 資料說明</div>
+  <div class="card">
+    <div class="card-zh" style="margin-bottom:14px">關於本地圖</div>
+    <p style="font-size:13px;font-weight:300;line-height:1.85;color:var(--grey-1);max-width:780px">
+      本地圖整理自<strong>內政部警政署 A1 級道路交通事故</strong>公開資料，
+      篩選發生於台中市（含原文之「臺中市」）之事故，年度範圍為民國 105 至 114 年（2016–2025）。
+      A1 為「造成人員當場或 24 小時內死亡」之事故等級，每筆事件可能涉及多位當事人。
+    </p>
+    <p style="font-size:13px;font-weight:300;line-height:1.85;color:var(--grey-1);max-width:780px;margin-top:10px">
+      不同年度的資料完整度不同：<strong>2016、2017、2021</strong> 為「簡式」欄位
+      （僅含時間、地點、傷亡、車種），<strong>2018、2019、2020、2022 — 2025</strong> 為完整欄位
+      （含天候、光線、道路類別、肇因等）；<strong>2016 與 2017</strong> 完全無經緯度資訊，
+      故地圖僅顯示 2018 年後之事件，但所有年份皆納入趨勢與時間／月份分布之統計。
+    </p>
+    <p style="font-size:13px;font-weight:300;line-height:1.85;color:var(--grey-1);max-width:780px;margin-top:10px">
+      <strong>「運具類別」採用受害者邏輯</strong>：每筆事件以其中<strong>最弱勢用路人</strong>之運具為類別
+      （優先序：行人 &gt; 自行車/慢車 &gt; 機車 &gt; 汽/貨車）。這與 A1 原始資料的「當事者順位 P1」不同 ——
+      左轉小客車撞死行人之案件，P1 是駕駛、運具為汽車，但本地圖會把該事件歸類為「行人」。
+      此調整反映「誰真正在道路上喪生」之問題，與政策關切的「弱勢用路人保護」一致。
+      原始 P1 分類保留於每筆事件的 <code style="font-family:var(--font-en);font-size:11px;background:var(--grey-4);padding:1px 4px">principal_mode</code> 欄位。
+    </p>
+    <p style="font-size:13px;font-weight:300;line-height:1.85;color:var(--grey-1);max-width:780px;margin-top:10px">
+      <strong>幹線道路圖層</strong>：地圖上的紅／橙／藍線為國道、快速公路、省道，
+      資料來源為<strong>交通部公路局 ROAD_國省道(含快速公路)_1150409 圖資</strong>
+      （TWD97/TM2 經緯度轉換、Douglas-Peucker 15m 簡化）。可在地圖上方「幹線 Hwys」按鈕切換顯示與隱藏。
+    </p>
+
+
+    <p style="font-size:11px;color:var(--grey-2);font-weight:300;line-height:1.8;margin-top:14px;font-family:var(--font-en);letter-spacing:0.05em">
+      A1 = Fatal crash (death within 24 h). Older years (2016–2017, 2021) use a simplified schema. Coordinates absent for 2016–2017.
+    </p>
+  </div>
+</div>
+
+<footer>
+  <div>Taichung Mobility Atlas · 01 — Traffic Safety · Designed by 吳昀慶</div>
+  <div class="tags">
+    <span class="tag lime">交通安全</span>
+    <span class="tag">十年回顧</span>
+    <span class="tag black">2026</span>
+  </div>
+</footer>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<script src="taichung_a1.js"></script>
+<script>
+(() => {
+  const DATA = window.TAITUNG_A1 || [];
+  const YEARLY = window.TAITUNG_YEARLY || [];
+
+  const MODE_COLOR = {
+    '機車': '#1A1A1A',
+    '汽車': '#3A7CC3',
+    '人':   '#D94F3D',
+    '慢車': '#E8A825',
+    '其他': '#888888',
+  };
+  const MODE_KEYS = ['機車','汽車','人','慢車','其他'];
+
+  DATA.forEach((e, i) => { e._id = i; });
+
+  // ---------- Filter state ----------
+  const state = { year: 'all', mode: 'all', view: 'points', hwy: 'on', selectedId: null };
+
+  function filteredAll() {
+    return DATA.filter(e =>
+      (state.year === 'all' || String(e.year) === state.year) &&
+      (state.mode === 'all' || e.mode === state.mode)
+    );
+  }
+  function filteredOnMap() {
+    return filteredAll().filter(e => e.lon && e.lat);
+  }
+
+  // ====================================================================
+  //  ANNUAL TREND SVG  (Events lime fill+stroke, Deaths dashed black)
+  // ====================================================================
+  function renderTrend() {
+    const W = 900, H = 280;
+    const padL = 44, padR = 24, padT = 24, padB = 36;
+    const innerW = W - padL - padR;
+    const innerH = H - padT - padB;
+
+    const years = YEARLY.map(y => y.year);
+    const events = YEARLY.map(y => y.events);
+    const deaths = YEARLY.map(y => y.deaths);
+    const maxY = Math.max(60, Math.max(...events, ...deaths) + 6);
+
+    const x = i => padL + (years.length === 1 ? innerW/2 : innerW * i / (years.length - 1));
+    const y = v => padT + innerH - (v / maxY) * innerH;
+
+    // grid lines (every 10)
+    const gridStep = 10;
+    const gridLines = [];
+    for (let g = 0; g <= maxY; g += gridStep) {
+      gridLines.push(`<line x1="${padL}" x2="${W-padR}" y1="${y(g)}" y2="${y(g)}" stroke="#F2F2F2" stroke-width="1"/>`);
+      gridLines.push(`<text x="${padL-8}" y="${y(g)+3}" text-anchor="end" font-family="Space Grotesk" font-size="9" fill="#888">${g}</text>`);
+    }
+
+    // x ticks
+    const xTicks = years.map((yr, i) =>
+      `<text x="${x(i)}" y="${H - padB + 18}" text-anchor="middle" font-family="Space Grotesk" font-size="10" fill="#4A4A4A" letter-spacing="0.05em">${yr}</text>`
+    ).join('');
+
+    // events polyline (lime fill area)
+    const evtPath = events.map((v,i)=>`${i===0?'M':'L'}${x(i)},${y(v)}`).join(' ');
+    const evtArea = `${evtPath} L${x(events.length-1)},${y(0)} L${x(0)},${y(0)} Z`;
+
+    // deaths dashed line
+    const dthPath = deaths.map((v,i)=>`${i===0?'M':'L'}${x(i)},${y(v)}`).join(' ');
+
+    // dots
+    const evtDots = events.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="#1A1A1A" stroke="#C8D400" stroke-width="2"/>`).join('');
+    const dthDots = deaths.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="3" fill="white" stroke="#1A1A1A" stroke-width="1.5"/>`).join('');
+
+    // value labels for deaths
+    const dthLabels = deaths.map((v,i)=>{
+      const above = v >= events[i];
+      return `<text x="${x(i)}" y="${y(v) + (above ? -10 : 18)}" text-anchor="middle"
+        font-family="Space Grotesk" font-size="10" font-weight="600" fill="#1A1A1A">${v}</text>`;
+    }).join('');
+
+    document.getElementById('trendSvg').innerHTML = `
+      ${gridLines.join('')}
+      <path d="${evtArea}" fill="#C8D400" opacity="0.18"/>
+      <path d="${evtPath}" fill="none" stroke="#A8B200" stroke-width="2.5"/>
+      <path d="${dthPath}" fill="none" stroke="#1A1A1A" stroke-width="1.5" stroke-dasharray="5 4"/>
+      ${evtDots}
+      ${dthDots}
+      ${dthLabels}
+      ${xTicks}
+      <text x="${padL}" y="${padT-8}" font-family="Space Grotesk" font-size="9"
+        fill="#888" letter-spacing="0.2em">EVENTS · DEATHS</text>
+    `;
+  }
+
+  // ====================================================================
+  //  YEAR STACKS — mode composition per year
+  // ====================================================================
+  function renderYearStacks() {
+    const wrap = document.getElementById('yearStacks');
+    const maxTotal = Math.max(...YEARLY.map(y => y.events));
+    wrap.innerHTML = YEARLY.map(yr => {
+      const total = yr.events;
+      const widthScale = total / maxTotal;
+      const segs = MODE_KEYS.map(k => {
+        const v = yr.by_mode[k] || 0;
+        if (!v) return '';
+        const pct = (v / total) * 100;
+        return `<div class="seg" style="flex:${pct};background:${MODE_COLOR[k]}" title="${k} ${v}"></div>`;
+      }).join('');
+      return `<div class="year-stack">
+        <div class="yr">${yr.year}</div>
+        <div class="stack" style="width:${(widthScale*100).toFixed(1)}%">${segs}</div>
+        <div class="total">${total}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // ====================================================================
+  //  SNAPSHOT — latest year vs decade average
+  // ====================================================================
+  function renderSnapshot() {
+    const latest = YEARLY[YEARLY.length - 1];
+    const avg = (k) => Math.round(YEARLY.reduce((s,y)=>s+y[k],0)/YEARLY.length);
+    const peak = YEARLY.reduce((a,b)=> b.deaths > a.deaths ? b : a);
+    const rows = [
+      ['事故件數 Events', latest.events, avg('events')],
+      ['死亡人數 Deaths', latest.deaths, avg('deaths')],
+      ['機車主因 Motorcycle', latest.by_mode['機車']||0, Math.round(YEARLY.reduce((s,y)=>s+(y.by_mode['機車']||0),0)/YEARLY.length)],
+    ];
+    document.getElementById('snapshot').innerHTML = `
+      <div style="display:grid;grid-template-columns:1.4fr 0.6fr 0.6fr;gap:8px;align-items:baseline;font-size:11px">
+        <div style="font-family:'Space Grotesk';font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:#888">Metric</div>
+        <div style="font-family:'Space Grotesk';font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:#888;text-align:right">2025</div>
+        <div style="font-family:'Space Grotesk';font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:#888;text-align:right">10y Avg</div>
+        ${rows.map(([label, v, a]) => {
+          const diff = v - a;
+          const dStr = (diff===0)?'＝':((diff>0?'+':'')+diff);
+          const dColor = diff < 0 ? '#A8B200' : (diff > 0 ? '#D94F3D' : '#888');
+          return `
+            <div style="border-top:1px solid #D0D0D0;padding-top:10px;color:#4A4A4A">${label}</div>
+            <div style="border-top:1px solid #D0D0D0;padding-top:10px;text-align:right;font-family:'Space Grotesk';font-size:22px;font-weight:300;color:#1A1A1A">${v}</div>
+            <div style="border-top:1px solid #D0D0D0;padding-top:10px;text-align:right;font-family:'Space Grotesk';font-size:14px;font-weight:400;color:#888">
+              ${a}
+              <div style="font-size:9px;color:${dColor};letter-spacing:0.1em">${dStr}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+      <div style="margin-top:20px;padding-top:14px;border-top:1px solid #D0D0D0;font-size:11px;line-height:1.7;color:#4A4A4A;font-weight:300">
+        十年高峰：<strong style="color:#1A1A1A">${peak.year} 年 · ${peak.deaths} 人</strong><br>
+        最近一年較十年平均<span style="color:${latest.deaths<avg('deaths')?'#A8B200':'#D94F3D'};font-weight:500"> ${latest.deaths<avg('deaths')?'低':'高'} ${Math.abs(latest.deaths-avg('deaths'))} 人</span>。
+      </div>
+    `;
+  }
+
+  // ====================================================================
+  //  HEATMAP — district × year
+  // ====================================================================
+  function renderHeatmap() {
+    const years = YEARLY.map(y => y.year);
+    // Aggregate to find top 8 districts
+    const totals = {};
+    YEARLY.forEach(y => {
+      for (const [d, v] of Object.entries(y.by_district)) totals[d] = (totals[d]||0) + v;
+    });
+    const districts = Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0, 10).map(([d])=>d);
+    let maxCell = 0;
+    districts.forEach(d => years.forEach(y => {
+      const yr = YEARLY.find(x => x.year === y);
+      maxCell = Math.max(maxCell, yr.by_district[d] || 0);
+    }));
+
+    const el = document.getElementById('heatmap');
+    let html = `<div class="corner">DISTRICT · YEAR</div>`;
+    years.forEach(y => { html += `<div class="col-head">${y}</div>`; });
+    districts.forEach(d => {
+      html += `<div class="row-label">${d}</div>`;
+      years.forEach(y => {
+        const yr = YEARLY.find(x => x.year === y);
+        const v = yr.by_district[d] || 0;
+        // Lime tint: 0 -> grey-4, max -> lime full
+        const t = maxCell ? v/maxCell : 0;
+        const bg = v === 0 ? 'var(--grey-4)' :
+                   `rgba(168, 178, 0, ${0.15 + 0.85*t})`;
+        const color = t > 0.55 ? '#1A1A1A' : (v===0 ? '#D0D0D0' : '#4A4A4A');
+        html += `<div class="cell ${v===0?'zero':''}" style="background:${bg};color:${color}">${v||'·'}</div>`;
+      });
+    });
+    el.innerHTML = html;
+  }
+
+  // ====================================================================
+  //  MAP
+  // ====================================================================
+  const map = L.map('map', {
+    center: [24.15, 120.7],
+    zoom: 10,
+    zoomControl: true,
+    scrollWheelZoom: true,
+    attributionControl: true,
+  });
+  // --- Base-map registry (switchable) ---
+  const baseLayers = {
+    minimal: [
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap &copy; CARTO', subdomains: 'abcd', maxZoom: 19,
+      }),
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd', maxZoom: 19, pane: 'shadowPane',
+      }),
+    ],
+    roads: [
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap &copy; CARTO', subdomains: 'abcd', maxZoom: 19,
+      }),
+    ],
+    satellite: [
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri', maxZoom: 19,
+      }),
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd', maxZoom: 19, pane: 'shadowPane',
+      }),
+    ],
+  };
+  let currentBase = 'roads';
+  function setBase(name) {
+    if (!baseLayers[name]) return;
+    baseLayers[currentBase].forEach(l => map.removeLayer(l));
+    currentBase = name;
+    baseLayers[name].forEach(l => l.addTo(map));
+  }
+  baseLayers.roads.forEach(l => l.addTo(map));
+
+const markerLayer = L.layerGroup().addTo(map);
+  const markerById = new Map();
+
+  // Highway pane sits between tile labels and markers
+  map.createPane('highwayPane');
+  map.getPane('highwayPane').style.zIndex = 380;
+  map.getPane('highwayPane').style.pointerEvents = 'none';
+
+  const HWY_STYLE = {
+    '國道':   { color: '#D94F3D', weight: 3.2, opacity: 0.85 },
+    '快速公路': { color: '#E8A825', weight: 2.6, opacity: 0.85 },
+    '省道':   { color: '#3A7CC3', weight: 1.6, opacity: 0.75 },
+    '其他':   { color: '#888888', weight: 1.2, opacity: 0.55 },
+  };
+  let highwayLayer = null;
+  function styleHighway(feat) {
+    return HWY_STYLE[feat.properties.class] || HWY_STYLE['其他'];
+  }
+  function bindHwyTooltip(feat, layer) {
+    const p = feat.properties;
+    const label = [p.num, p.name, p.alias].filter(Boolean).join(' · ');
+    if (label) layer.bindTooltip(label, { sticky: true, className: 'taitung-tt' });
+  }
+  fetch('highways.geojson')
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(geo => {
+      highwayLayer = L.geoJSON(geo, {
+        pane: 'highwayPane',
+        style: styleHighway,
+        onEachFeature: bindHwyTooltip,
+      });
+      if (state.hwy === 'on') highwayLayer.addTo(map);
+    })
+    .catch(err => console.warn('highways.geojson not loaded:', err));
+
+  // Heat layer — VZT gradient: lime → gold → red. Weight by deaths.
+  const heatLayer = L.heatLayer([], {
+    radius: 26,
+    blur: 22,
+    maxZoom: 14,
+    minOpacity: 0.35,
+    max: 4,
+    gradient: {
+      0.0: 'rgba(200, 212, 0, 0)',
+      0.15: '#C8D400',
+      0.4:  '#E8F000',
+      0.65: '#E8A825',
+      1.0:  '#D94F3D',
+    },
+  });
+
+  function makeMarker(ev) {
+    const color = MODE_COLOR[ev.mode] || '#888';
+    const radius = 6 + Math.min(ev.deaths - 1, 3) * 2;
+    const m = L.circleMarker([ev.lat, ev.lon], {
+      radius,
+      color: '#1A1A1A',
+      weight: 1.2,
+      fillColor: color,
+      fillOpacity: 0.9,
+      className: 'lf-marker',
+    });
+    m.bindTooltip(`${ev.date.slice(0,4)}.${ev.date.slice(4,6)}.${ev.date.slice(6,8)} · ${ev.district}`, {
+      className: 'taitung-tt',
+      direction: 'top',
+      offset: [0, -6],
+    });
+    m.on('click', () => selectEvent(ev._id));
+    return m;
+  }
+
+  function renderMap() {
+    const events = filteredOnMap();
+
+    // --- Points layer ---
+    markerLayer.clearLayers();
+    markerById.clear();
+    if (state.view === 'points' || state.view === 'both') {
+      events.forEach(ev => {
+        const m = makeMarker(ev);
+        m.addTo(markerLayer);
+        markerById.set(ev._id, m);
+      });
+    }
+
+    // --- Heat layer ---
+    if (state.view === 'heat' || state.view === 'both') {
+      const pts = events.map(ev => [ev.lat, ev.lon, ev.deaths || 1]);
+      heatLayer.setLatLngs(pts);
+      if (!map.hasLayer(heatLayer)) heatLayer.addTo(map);
+    } else if (map.hasLayer(heatLayer)) {
+      map.removeLayer(heatLayer);
+    }
+  }
+
+  // ====================================================================
+  //  HOTSPOT RANKING — road segment + grid clustering
+  // ====================================================================
+  // Many A1 records share identical coordinates that are road centroids
+  // rather than precise crash points. So we cluster by (road, ~3km segment)
+  // when a road name + km marker is present; otherwise fall back to a 300m
+  // spatial grid.
+  //
+  // Segment step: 3 km — small enough to be actionable, large enough to
+  // tolerate the published "公尺" precision noise.
+  const ROAD_RE = /(台\d+(?:乙|甲|丙)?線|縣道\d+|鄉道[\w\d]*|市區道路|產業道路)/;
+  const KM_RE   = /(\d+)\s*公里/;
+  const SEG_KM  = 3;
+  const SPATIAL_GRID = 0.003;
+
+  function clusterKey(ev) {
+    const roadM = ev.location.match(ROAD_RE);
+    const kmM = ev.location.match(KM_RE);
+    if (roadM && kmM) {
+      const seg = Math.floor(parseInt(kmM[1], 10) / SEG_KM);
+      return { kind: 'road', key: `${roadM[1]}#${seg}` };
+    }
+    // fall back to spatial bin
+    const lat = Math.round(ev.lat / SPATIAL_GRID);
+    const lon = Math.round(ev.lon / SPATIAL_GRID);
+    return { kind: 'grid', key: `g${lat}_${lon}` };
+  }
+
+  function computeHotspots(events, topN = 10) {
+    const bins = new Map();
+    events.forEach(e => {
+      const ck = clusterKey(e);
+      if (!bins.has(ck.key)) bins.set(ck.key, { kind: ck.kind, deaths: 0, events: 0, evs: [] });
+      const b = bins.get(ck.key);
+      b.deaths += e.deaths || 0;
+      b.events += 1;
+      b.evs.push(e);
+    });
+    return Array.from(bins.values())
+      .map(b => {
+        const lead = b.evs.slice().sort((a,c)=> (c.deaths-a.deaths) || a.date.localeCompare(c.date))[0];
+        const distCnt = {};
+        b.evs.forEach(e => { distCnt[e.district] = (distCnt[e.district]||0)+1; });
+        const districts = Object.entries(distCnt).sort((a,c)=>c[1]-a[1]).map(([d])=>d);
+        const yrs = Array.from(new Set(b.evs.map(e => e.year))).sort();
+        const yrRange = yrs.length === 1 ? `${yrs[0]}` : `${yrs[0]}–${yrs[yrs.length-1]}`;
+
+        // Road + km range label
+        let label, sublabel;
+        if (b.kind === 'road') {
+          const roadM = lead.location.match(ROAD_RE);
+          const road = roadM ? roadM[1] : '—';
+          const kms = b.evs.map(e => { const m = e.location.match(KM_RE); return m ? parseInt(m[1],10) : null; }).filter(v=>v!=null);
+          let kmLabel = '';
+          if (kms.length) {
+            const lo = Math.min(...kms), hi = Math.max(...kms);
+            kmLabel = lo === hi ? `${lo}k` : `${lo}–${hi}k`;
+          }
+          label = `${road} ${kmLabel}`.trim();
+          sublabel = districts.slice(0, 2).join(' / ');
+        } else {
+          label = lead.location;
+          sublabel = districts[0];
+        }
+
+        // mean coordinate (excluding centroid-suspect dupes)
+        const avgLat = b.evs.reduce((s,e)=>s+e.lat,0) / b.evs.length;
+        const avgLon = b.evs.reduce((s,e)=>s+e.lon,0) / b.evs.length;
+        const isCentroidCluster = b.kind === 'road' &&
+          new Set(b.evs.map(e => `${e.lat.toFixed(5)}_${e.lon.toFixed(5)}`)).size === 1 &&
+          b.events >= 3;
+
+        return {
+          deaths: b.deaths,
+          events: b.events,
+          lat: avgLat, lon: avgLon,
+          label, sublabel,
+          districts,
+          yrRange,
+          isCentroidCluster,
+          kind: b.kind,
+        };
+      })
+      .sort((a, c) => (c.deaths - a.deaths) || (c.events - a.events))
+      .slice(0, topN);
+  }
+
+  function renderHotspots() {
+    const events = filteredOnMap();
+    const tops = computeHotspots(events, 10);
+    const el = document.getElementById('hotspots');
+    if (!tops.length) {
+      el.innerHTML = '<div style="font-size:11px;color:#888;padding:24px 0;font-weight:300">— 篩選條件下無熱點資料 —</div>';
+      return;
+    }
+    el.innerHTML = tops.map((h, i) => {
+      const rankClass = i === 0 ? 'top1' : (i < 3 ? 'top'+(i+1) : '');
+      const segNote = h.isCentroidCluster
+        ? '<span style="margin-left:8px;font-family:var(--font-en);font-size:8.5px;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase">⚑ 路段</span>'
+        : '';
+      return `<div class="hotspot-row ${rankClass}" data-lat="${h.lat}" data-lon="${h.lon}">
+        <div class="rank">${String(i+1).padStart(2,'0')}</div>
+        <div class="info">
+          <div class="loc">${h.label}${segNote}</div>
+          <div class="meta">${h.sublabel}<span class="sep">·</span>${h.events} 件<span class="sep">·</span>${h.yrRange}</div>
+        </div>
+        <div class="deaths">${h.deaths}<small>死亡</small></div>
+      </div>`;
+    }).join('');
+
+    el.querySelectorAll('.hotspot-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const lat = parseFloat(row.dataset.lat);
+        const lon = parseFloat(row.dataset.lon);
+        map.flyTo([lat, lon], 14, { duration: 0.8 });
+        document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    });
+  }
+
+  // ====================================================================
+  //  SIDE PANEL
+  // ====================================================================
+  function fmtDate(d) { return `${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6,8)}`; }
+  function fmtTime(t) { return `${t.slice(0,2)}:${t.slice(2,4)}`; }
+  function modeLabel(p) {
+    const sub = p.vehicle_sub ? ` · ${p.vehicle_sub}` : '';
+    return (p.vehicle_main || '—') + sub;
+  }
+
+  function renderDetail(ev) {
+    const card = document.getElementById('detailCard');
+    const empty = document.getElementById('detailEmpty');
+    empty.style.display = 'none';
+    card.style.display = 'block';
+
+    let partiesBlock = '';
+    if (ev.parties && ev.parties.length) {
+      const parties = ev.parties.map((p, i) => {
+        const ageStr = p.age != null ? `${p.age}` : '—';
+        const genderStr = p.gender || '';
+        return `<div class="party-row ${p.order==='1' ? 'role-victim' : ''}">
+          <span class="pno">P${p.order || (i+1)}</span>
+          <span class="pname">${modeLabel(p)}</span>
+          <span class="pmeta">${genderStr} ${ageStr}</span>
+        </div>`;
+      }).join('');
+      partiesBlock = `<div class="parties-list"><h3 style="margin-bottom:4px">Parties — 當事人</h3>${parties}</div>`;
+    } else {
+      partiesBlock = `<div class="parties-list">
+        <h3 style="margin-bottom:4px">Vehicles — 車種</h3>
+        <div style="font-size:11px;color:#4A4A4A;font-weight:300;padding:8px 0">
+          ${(ev.vehicles_raw || '').split(';').map(v => `<div>· ${v}</div>`).join('')}
+        </div>
+      </div>`;
+    }
+
+    const optionalRows = ev.schema === 'full' ? `
+      <div class="detail-row">
+        <span class="dlabel">Road</span>
+        <span class="dval"><strong>${ev.road_type || '—'}</strong> · 速限 ${ev.speed_limit || '—'} · ${ev.road_shape_sub || ev.road_shape_main || '—'}</span>
+      </div>
+      <div class="detail-row">
+        <span class="dlabel">Setting</span>
+        <span class="dval">${ev.weather || '—'} · ${ev.light || '—'} · ${ev.signal || '—'}</span>
+      </div>
+      <div class="detail-row">
+        <span class="dlabel">Type</span>
+        <span class="dval">${ev.accident_main || '—'}${ev.accident_sub ? ' · ' + ev.accident_sub : ''}</span>
+      </div>
+      <div class="detail-row">
+        <span class="dlabel">Cause</span>
+        <span class="dval"><strong>${ev.cause_main || '尚未發現肇事因素'}</strong></span>
+      </div>
+    ` : `
+      <div class="detail-row">
+        <span class="dlabel">Schema</span>
+        <span class="dval" style="font-family:'Space Grotesk';font-size:10px;letter-spacing:0.1em;color:#888">SIMPLIFIED RECORD · 簡式資料，僅含時間／地點／傷亡／車種</span>
+      </div>
+    `;
+
+    card.innerHTML = `
+      <div class="detail-date">${fmtDate(ev.date)} · ${fmtTime(ev.time)}</div>
+      <div class="detail-loc">${ev.location}</div>
+      <div class="detail-row">
+        <span class="dlabel">Outcome</span>
+        <span class="dval"><strong>${ev.deaths}</strong> 死 / ${ev.injuries} 傷</span>
+      </div>
+      ${optionalRows}
+      ${partiesBlock}
+    `;
+  }
+
+  function clearSelection() {
+    if (state.selectedId == null) return;
+    const prev = markerById.get(state.selectedId);
+    if (prev) prev.getElement()?.classList.remove('selected');
+  }
+  function selectEvent(id) {
+    clearSelection();
+    state.selectedId = id;
+    const m = markerById.get(id);
+    if (m) {
+      m.getElement()?.classList.add('selected');
+      m.bringToFront();
+    }
+    renderDetail(DATA[id]);
+  }
+
+  // ====================================================================
+  //  BREAKDOWNS  (cumulative — react to filter)
+  // ====================================================================
+  function tally(arr, keyFn) {
+    const m = new Map();
+    arr.forEach(e => {
+      const k = keyFn(e);
+      if (!k) return;
+      m.set(k, (m.get(k) || 0) + (e.deaths || 1));
+    });
+    return Array.from(m.entries()).sort((a,b)=>b[1]-a[1]);
+  }
+  function renderBars(elId, rows, opts={}) {
+    const el = document.getElementById(elId);
+    if (!rows.length) { el.innerHTML = '<div style="font-size:11px;color:#888;font-weight:300">— 篩選條件下無資料 —</div>'; return; }
+    const max = Math.max(1, ...rows.map(r => r[1]));
+    const total = rows.reduce((s,r)=>s+r[1],0) || 1;
+    el.innerHTML = rows.map(([k, v]) => {
+      const cls = (opts.cls && opts.cls(k)) || '';
+      const pct = (v/total*100).toFixed(0);
+      return `<div class="bar-row ${cls}">
+        <div class="bar-label">${k}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${(v/max*100).toFixed(1)}%"></div></div>
+        <div class="bar-val">${v}<small>${pct}%</small></div>
+      </div>`;
+    }).join('');
+  }
+  function renderHourGrid(arr) {
+    const counts = new Array(24).fill(0);
+    arr.forEach(e => {
+      const h = parseInt((e.time||'').slice(0,2), 10);
+      if (!isNaN(h) && h >= 0 && h < 24) counts[h] += e.deaths || 1;
+    });
+    const max = Math.max(1, ...counts);
+    document.getElementById('byHour').innerHTML = counts.map(c => {
+      const h = max ? (c/max*100) : 0;
+      return `<div class="hour-cell"><div class="hour-bar" style="height:${h}%" title="${c}"></div></div>`;
+    }).join('');
+    document.getElementById('byHourAxis').innerHTML = counts.map((_,i) =>
+      `<span>${i%3===0 ? String(i).padStart(2,'0') : ''}</span>`).join('');
+  }
+  function renderMonthGrid(arr) {
+    const counts = new Array(12).fill(0);
+    arr.forEach(e => {
+      const m = e.month|0;
+      if (m >= 1 && m <= 12) counts[m-1] += e.deaths || 1;
+    });
+    const max = Math.max(1, ...counts);
+    document.getElementById('byMonth').innerHTML = counts.map(c => {
+      const h = max ? (c/max*100) : 0;
+      return `<div class="month-cell"><div class="month-bar" style="height:${h}%" title="${c}"></div></div>`;
+    }).join('');
+    document.getElementById('byMonthAxis').innerHTML =
+      counts.map((_,i) => `<span>${i+1}</span>`).join('');
+  }
+  function renderBreakdowns() {
+    const arr = filteredAll();
+    renderBars('byDistrict', tally(arr, e => e.district), { cls: () => 'alt' });
+    const modeColorClass = (k) => ({ '機車':'alt','汽車':'blue','人':'red','慢車':'gold','其他':'grey' }[k] || '');
+    renderBars('byMode', tally(arr, e => e.mode), { cls: modeColorClass });
+    renderBars('byRoad', tally(arr, e => e.road_type || null));
+    renderBars('byLight', tally(arr, e => e.light || null), {
+      cls: (k) => k.includes('無照明') ? 'red' : k.includes('未開啟') ? 'gold' : '',
+    });
+    renderHourGrid(arr);
+    renderMonthGrid(arr);
+
+    const totalDeaths = arr.reduce((s,e)=>s+e.deaths,0);
+    const events = arr.length;
+    const moto = arr.filter(e => e.mode === '機車').length;
+    const ped = arr.filter(e => e.mode === '人').length;
+    const onMap = filteredOnMap().length;
+
+    document.getElementById('bigDeaths').innerHTML = `${totalDeaths}<sup>人</sup>`;
+    document.getElementById('kEvents').textContent = events;
+    document.getElementById('kMoto').innerHTML = `${moto}<small>件</small>`;
+    document.getElementById('kPed').innerHTML = `${ped}<small>件</small>`;
+    const latest = YEARLY[YEARLY.length-1];
+    document.getElementById('kLatest').innerHTML = `${latest.deaths}<small>人</small>`;
+    const peak = YEARLY.reduce((a,b)=> b.deaths > a.deaths ? b : a);
+    document.getElementById('peakYear').textContent = peak.year;
+    document.getElementById('peakDeaths').textContent = peak.deaths;
+    document.getElementById('avgDeaths').textContent = Math.round(YEARLY.reduce((s,y)=>s+y.deaths,0)/YEARLY.length);
+    document.getElementById('avgDeaths2').textContent = Math.round(YEARLY.reduce((s,y)=>s+y.deaths,0)/YEARLY.length);
+
+    const pctMoto = events ? Math.round(moto / events * 100) : 0;
+    document.getElementById('motoPct').innerHTML = `${pctMoto}<small>%</small>`;
+    document.getElementById('motoCount').textContent = moto;
+
+    document.getElementById('filterCount').textContent =
+      `Showing ${onMap} on map · ${arr.length} / ${DATA.length} total`;
+  }
+
+  // ====================================================================
+  //  WIRE UP FILTERS
+  // ====================================================================
+  document.querySelectorAll('[data-year]').forEach(el => {
+    el.addEventListener('click', () => {
+      if (el.classList.contains('disabled')) return;
+      document.querySelectorAll('[data-year]').forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
+      state.year = el.dataset.year;
+      refresh();
+    });
+  });
+  document.querySelectorAll('[data-mode]').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('[data-mode]').forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
+      state.mode = el.dataset.mode;
+      refresh();
+    });
+  });
+  document.querySelectorAll('[data-view]').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('[data-view]').forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
+      state.view = el.dataset.view;
+      renderMap();  // only map needs re-render; breakdowns unchanged
+    });
+  });
+  document.querySelectorAll('[data-base]').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('[data-base]').forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
+      setBase(el.dataset.base);
+    });
+  });
+  document.querySelectorAll('[data-hwy]').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('[data-hwy]').forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
+      state.hwy = el.dataset.hwy;
+      if (!highwayLayer) return;
+      if (state.hwy === 'on') {
+        if (!map.hasLayer(highwayLayer)) highwayLayer.addTo(map);
+      } else {
+        if (map.hasLayer(highwayLayer)) map.removeLayer(highwayLayer);
+      }
+    });
+  });
+
+  function refresh() {
+    renderMap();
+    renderHotspots();
+    renderBreakdowns();
+    if (state.selectedId != null) {
+      const stillVisible = filteredOnMap().some(e => e._id === state.selectedId);
+      if (!stillVisible) {
+        state.selectedId = null;
+        document.getElementById('detailCard').style.display = 'none';
+        document.getElementById('detailEmpty').style.display = 'block';
+      }
+    }
+  }
+
+  // ====================================================================
+  //  INITIAL RENDER
+  // ====================================================================
+  renderTrend();
+  renderYearStacks();
+  renderSnapshot();
+  renderHeatmap();
+  renderMap();
+  renderHotspots();
+  renderBreakdowns();
+
+  const bounds = L.latLngBounds(filteredOnMap().map(e => [e.lat, e.lon]));
+  if (bounds.isValid()) map.fitBounds(bounds, { padding: [24, 24] });
+})();
+</script>
+</body>
+</html>
