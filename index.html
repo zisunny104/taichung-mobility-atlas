@@ -308,7 +308,11 @@ body {
 /* District heatmap */
 .heatmap-wrap {
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: 640px;
 }
+.heatmap-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
+.heatmap-wrap::-webkit-scrollbar-thumb { background: var(--grey-3); border-radius: 3px; }
 .heatmap {
   display: grid;
   grid-template-columns: 88px repeat(10, minmax(36px, 1fr));
@@ -1483,12 +1487,12 @@ footer .tag.black { background: var(--black); color: var(--white); border-color:
   // ====================================================================
   function renderHeatmap() {
     const years = YEARLY.map(y => y.year);
-    // Aggregate to find top 8 districts
+    // All districts
     const totals = {};
     YEARLY.forEach(y => {
       for (const [d, v] of Object.entries(y.by_district)) totals[d] = (totals[d]||0) + v;
     });
-    const districts = Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0, 10).map(([d])=>d);
+    const districts = Object.entries(totals).sort((a,b)=>b[1]-a[1]).map(([d])=>d);
     let maxCell = 0;
     districts.forEach(d => years.forEach(y => {
       const yr = YEARLY.find(x => x.year === y);
