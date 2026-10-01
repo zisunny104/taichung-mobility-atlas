@@ -1594,8 +1594,9 @@ footer .tag.black { background: var(--black); color: var(--white); border-color:
       L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Tiles &copy; Esri', maxZoom: 19,
       }),
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
-        subdomains: 'abcd', maxZoom: 19, pane: 'shadowPane',
+      // 地名疊圖：內政部國土測繪中心電子地圖透明版（原 CARTO 地名層）
+      L.tileLayer('https://wmts.nlsc.gov.tw/wmts/EMAP2/default/GoogleMapsCompatible/{z}/{y}/{x}', {
+        attribution: '地名 &copy; 內政部國土測繪中心', maxZoom: 19, pane: 'shadowPane',
       }),
     ],
   };
