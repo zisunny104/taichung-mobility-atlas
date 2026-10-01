@@ -1534,13 +1534,45 @@ footer .tag.black { background: var(--black); color: var(--white); border-color:
   // 向量底圖（紙墨、Liberty），包成一般 Leaflet 圖層，setBase 的 addTo / removeLayer 不必改。
   // MapLibre 的 sprite 必須是絕對網址，所以載入樣式 JSON 後再依頁面位置補上。
   const VECTOR_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://openfreemap.org">OpenFreeMap</a>';
+  // 地名只顯示單一語言、不並列：依頁面語言把 symbol 圖層 text-field 裡的名稱運算式換成 coalesce
+  //（作法同 souliong 的 maplibre-engine.js）。道路編號等非名稱欄位原樣保留。
+  const LABEL_FIELDS = /^zh/i.test(document.documentElement.lang || 'zh-TW')
+    ? ['name:zh-Hant', 'name:zh', 'name:zh-Hans', 'name:en', 'name']
+    : ['name:en', 'name:latin', 'name_en', 'name'];
+  const LABEL_EXPR = ['coalesce', ...LABEL_FIELDS.map(f => ['get', f])];
+  function singleLanguageLabels(style) {
+    const isName = k => /^name([:_]|$)/.test(k);
+    const keys = (n, acc) => {
+      if (!Array.isArray(n)) return acc;
+      if ((n[0] === 'get' || n[0] === 'has') && typeof n[1] === 'string') acc.push(n[1]);
+      n.forEach(c => keys(c, acc));
+      return acc;
+    };
+    const valueOps = ['get', 'coalesce', 'concat', 'case', 'step', 'to-string', 'format'];
+    const swap = n => {
+      if (!Array.isArray(n)) return n;
+      if (valueOps.includes(n[0])) { const k = keys(n, []); if (k.length && k.every(isName)) return LABEL_EXPR; }
+      return n.map(swap);
+    };
+    const swapTemplate = str => {          // 舊式 "{name}" 樣板
+      const parts = str.replace(/\{name[^}]*\}(\s*\{name[^}]*\})+/g, '{name}').split(/(\{[^}]+\})/).filter(x => x !== '');
+      if (!parts.some(x => /^\{name[^}]*\}$/.test(x))) return str;
+      const out = parts.map(x => { const m = /^\{([^}]+)\}$/.exec(x); return !m ? x : isName(m[1]) ? LABEL_EXPR : ['to-string', ['get', m[1]]]; });
+      return out.length === 1 ? out[0] : ['concat', ...out];
+    };
+    (style.layers || []).forEach(l => {
+      const tf = l.type === 'symbol' && l.layout && l.layout['text-field'];
+      if (tf != null && tf !== false) l.layout['text-field'] = typeof tf === 'string' ? swapTemplate(tf) : swap(tf);
+    });
+    return style;
+  }
   const VectorBase = L.Layer.extend({
     initialize(styleUrl) { this._url = new URL(styleUrl, document.baseURI).href; },
     onAdd(map) {
       VectorBase._styles[this._url] = VectorBase._styles[this._url] ||
         fetch(this._url).then(r => r.json()).then(st => {
           if (st.sprite) st.sprite = new URL(st.sprite, this._url).href;
-          return st;
+          return singleLanguageLabels(st);
         });
       VectorBase._styles[this._url].then(st => {
         if (!this._map) return;                       // 載入期間已被切走
