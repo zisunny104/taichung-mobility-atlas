@@ -34,6 +34,10 @@ GitHub Pages：`https://yunching0513.github.io/taichung-mobility-atlas/`
 - [內政部警政署 A1 級交通事故公開資料](https://www.npa.gov.tw/) 透過 [data.gov.tw](https://data.gov.tw/) 取得
 - 幹線道路圖層：**交通部公路局 ROAD_國省道(含快速公路)_1150409**（TWD97/TM2 → WGS84，Douglas-Peucker 15m 簡化）
 
+## 底圖
+
+「簡潔」「道路」使用 [souliong](https://github.com/zisunny104/souliong) 的**紙墨**向量底圖（MapLibre 樣式，放在 `basemap/`，透過 `maplibre-gl-leaflet` 載入 Leaflet）。「簡潔」為無地名版，由 souliong 的 `tools/paper_ink_nolabels.php` 產生。地圖資料來自 [OpenFreeMap](https://openfreemap.org) 與 © OpenStreetMap contributors。「衛星」仍為 Esri 影像加 CARTO 地名。
+
 ## 開發者
 
 吳昀慶 · Designed for 台中市交通安全分析

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>台中市交通安全地圖 · Taichung Traffic Safety Map · 2016–2025</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100;300;400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1328,6 +1329,8 @@ footer .tag.black { background: var(--black); color: var(--white); border-color:
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.4/leaflet-maplibre-gl.js"></script>
 <script src="taichung_a1.js"></script>
 <script src="district_pop.js"></script>
 <script>
@@ -1528,21 +1531,32 @@ footer .tag.black { background: var(--black); color: var(--white); border-color:
     scrollWheelZoom: true,
     attributionControl: true,
   });
+  // 紙墨向量底圖，包成一般 Leaflet 圖層，setBase 的 addTo / removeLayer 不必改。
+  // MapLibre 的 sprite 必須是絕對網址，所以載入樣式 JSON 後再依頁面位置補上。
+  const PAPER_INK_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://openfreemap.org">OpenFreeMap</a> · 紙墨 <a href="https://github.com/zisunny104/souliong">souliong</a>';
+  const PaperInk = L.Layer.extend({
+    initialize(styleUrl) { this._url = new URL(styleUrl, document.baseURI).href; },
+    onAdd(map) {
+      PaperInk._styles[this._url] = PaperInk._styles[this._url] ||
+        fetch(this._url).then(r => r.json()).then(st => {
+          if (st.sprite) st.sprite = new URL(st.sprite, this._url).href;
+          return st;
+        });
+      PaperInk._styles[this._url].then(st => {
+        if (!this._map) return;                       // 載入期間已被切走
+        this._gl = L.maplibreGL({ style: st, attribution: PAPER_INK_ATTR }).addTo(map);
+      });
+    },
+    onRemove(map) { if (this._gl) { map.removeLayer(this._gl); this._gl = null; } },
+  });
+  PaperInk._styles = {};
+  const paperInk = url => new PaperInk(url);
   // --- Base-map registry (switchable) ---
   const baseLayers = {
-    minimal: [
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap &copy; CARTO', subdomains: 'abcd', maxZoom: 19,
-      }),
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
-        subdomains: 'abcd', maxZoom: 19, pane: 'shadowPane',
-      }),
-    ],
-    roads: [
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap &copy; CARTO', subdomains: 'abcd', maxZoom: 19,
-      }),
-    ],
+    // 紙墨（souliong paper-ink）向量底圖，樣式放在 basemap/，資料來自 OpenFreeMap。
+    // 簡潔＝無地名版，讓熱力圖與點位當主角；道路＝含地名、路名。
+    minimal: [paperInk('basemap/paper-ink-nolabels.json')],
+    roads: [paperInk('basemap/paper-ink.json')],
     satellite: [
       L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Tiles &copy; Esri', maxZoom: 19,
