@@ -36,7 +36,11 @@ GitHub Pages：`https://yunching0513.github.io/taichung-mobility-atlas/`
 
 ## 底圖
 
-「簡潔」「道路」使用 [souliong](https://github.com/zisunny104/souliong) 的**紙墨**向量底圖（MapLibre 樣式，放在 `basemap/`，透過 `maplibre-gl-leaflet` 載入 Leaflet）。「簡潔」為無地名版，由 souliong 的 `tools/paper_ink_nolabels.php` 產生。地圖資料來自 [OpenFreeMap](https://openfreemap.org) 與 © OpenStreetMap contributors。「衛星」仍為 Esri 影像加 CARTO 地名。
+- 簡潔：[souliong](https://github.com/zisunny104/souliong) 的**紙墨**向量樣式（`basemap/paper-ink.json`），取代原本的 CARTO Positron。
+- 道路：[OpenFreeMap](https://openfreemap.org) Liberty 向量樣式，取代原本的 CARTO Voyager。
+- 衛星：Esri 影像加 CARTO 地名（未更動）。
+
+向量樣式透過 `maplibre-gl-leaflet` 載入原本的 Leaflet 地圖。資料來自 OpenFreeMap 與 © OpenStreetMap contributors。
 
 ## 開發者
 
