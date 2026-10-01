@@ -1533,7 +1533,8 @@ footer .tag.black { background: var(--black); color: var(--white); border-color:
   });
   // 向量底圖（紙墨、Liberty），包成一般 Leaflet 圖層，setBase 的 addTo / removeLayer 不必改。
   // MapLibre 的 sprite 必須是絕對網址，所以載入樣式 JSON 後再依頁面位置補上。
-  const VECTOR_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://openfreemap.org">OpenFreeMap</a>';
+  // 固定字串：橋接函式庫的 getAttribution() 預設從執行中的 MapLibre 讀取，圖層移除時已是 null，版權會殘留
+  const VECTOR_ATTR = '<a href="https://openfreemap.org">OpenFreeMap</a> &copy; <a href="https://www.openmaptiles.org/">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
   // 地名只顯示單一語言、不並列：依頁面語言把 symbol 圖層 text-field 裡的名稱運算式換成 coalesce
   //（作法同 souliong 的 maplibre-engine.js）。道路編號等非名稱欄位原樣保留。
   const LABEL_FIELDS = /^zh/i.test(document.documentElement.lang || 'zh-TW')
@@ -1576,7 +1577,7 @@ footer .tag.black { background: var(--black); color: var(--white); border-color:
         });
       VectorBase._styles[this._url].then(st => {
         if (!this._map) return;                       // 載入期間已被切走
-        this._gl = L.maplibreGL({ style: st, attribution: VECTOR_ATTR }).addTo(map);
+        this._gl = L.maplibreGL({ style: st, attributionControl: { customAttribution: VECTOR_ATTR } }).addTo(map);
       });
     },
     onRemove(map) { if (this._gl) { map.removeLayer(this._gl); this._gl = null; } },
