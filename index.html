@@ -1586,9 +1586,11 @@ footer .tag.black { background: var(--black); color: var(--white); border-color:
   const vectorBase = url => new VectorBase(url);
   // --- Base-map registry (switchable) ---
   const baseLayers = {
-    // 紙墨（souliong paper-ink）向量底圖，樣式放在 basemap/，資料來自 OpenFreeMap。
-    // 簡潔（原 Positron）→ 紙墨：淡雅、讓熱力圖與點位當主角；
-    // 道路（原 Voyager）→ OpenFreeMap Liberty：彩色路網，看事故落在哪條路。
+    // 底圖來源（原 CARTO 圖磚已不可用，整片顯示 API KEY REQUIRED）：
+    //  簡潔（原 Positron）→ 紙墨向量樣式（https://github.com/zisunny104/souliong），檔案在 basemap/
+    //  道路（原 Voyager）→ OpenFreeMap Liberty（https://openfreemap.org）
+    //  衛星地名層 → 內政部國土測繪中心電子地圖透明版
+    // 向量底圖資料：© OpenStreetMap contributors，由 OpenFreeMap 提供。
     minimal: [vectorBase('basemap/paper-ink.json')],
     roads: [vectorBase('https://tiles.openfreemap.org/styles/liberty')],
     satellite: [
